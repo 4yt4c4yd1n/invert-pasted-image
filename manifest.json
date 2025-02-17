@@ -1,0 +1,10 @@
+{
+	"id": "invert-pasted-image",
+	"name": "Invert Pasted Image",
+	"version": "1.0.0",
+	"minAppVersion": "0.15.0",
+	"description": "Inverts pasted images to look better on dark mode",
+	"author": "4yt4c4yd1n",
+	"authorUrl": "https://github.com/4yt4c4yd1n",
+	"isDesktopOnly": false
+}
