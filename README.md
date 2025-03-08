@@ -8,7 +8,6 @@ This plugin was inspired by [this forum post](https://forum.obsidian.md/t/auto-a
 
 ## Settings
 - Toggle inverting pasted images
-- Inverting strength
-- Hue rotation
+- Delay: If #invert tag is not being applied to your images, increase this value
 
 [Cloned from sample plugin](https://github.com/obsidianmd/obsidian-sample-plugin)
