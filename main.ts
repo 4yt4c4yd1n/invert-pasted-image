@@ -3,14 +3,12 @@ import { inspect } from 'util'
 
 interface PluginSettings {
 	invertingOn: boolean;
-	invertAmount: string,
-	hueRotate: string
+	delay: number
 }
 
 const DEFAULT_SETTINGS: PluginSettings = {
 	invertingOn: true,
-	invertAmount: '0.88235294117',
-	hueRotate: '180'
+	delay: 30
 }
 
 const VALID_TARGET_REGEX = /!\[\[[^\]]+\.(png|jpg|jpeg|svg)\]\]/
@@ -23,14 +21,15 @@ export default class InvertPastedImagePlugin extends Plugin {
 	
 		this.registerEvent(
 				this.app.workspace.on('editor-paste', async (evt, editor)=>{
-					
+					console.log(evt.clipboardData)
 					if(this.settings.invertingOn){
 						
-						await sleep(10)
+						await sleep(this.settings.delay)
 						let cursor = editor.getCursor()
 						if(VALID_TARGET_REGEX.test(editor.getLine(cursor.line))){
 							cursor = editor.offsetToPos(editor.posToOffset(cursor)-2)
 							editor.replaceRange('#invert', cursor)
+							
 						}
 					}
 				})
@@ -50,8 +49,6 @@ export default class InvertPastedImagePlugin extends Plugin {
 
 	async loadSettings() {
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
-		changeInvertAmount(this.settings.invertAmount);
-		changeHueRotateAmount(this.settings.hueRotate);
 	}
 
 	async saveSettings() {
@@ -83,59 +80,23 @@ class SettingsTab extends PluginSettingTab {
 				})
 			})
 		
-			let invertSettings = new Setting(containerEl)
-			.setName('Inverting strength(0-1)')
+			let delaySettings = new Setting(containerEl)
+			.setName('Delay')
+			.setDesc("Increase this value if inverting isn't applied")
 			.addText((text)=>{
-				text.setValue(this.plugin.settings.invertAmount)
+				text.setValue(String(this.plugin.settings.delay))
 			.onChange(async (value)=>{
-				if(value[value.length-1] != '.' && value[value.length-1] != '0'){
-					value = String(Math.clamp(Number(value), 0, 1))
-				}
-				invertSettings.components[0].inputEl.value = value
-				this.plugin.settings.invertAmount = value;
+				this.plugin.settings.delay = Number(value);
 				await this.plugin.saveSettings();
-				changeInvertAmount(value)
 			})
 			})
-			invertSettings.addButton((button)=>{
+			delaySettings.addButton((button)=>{
 				button.setButtonText("Reset")
 				button.onClick(async (evt)=>{
-					this.plugin.settings.invertAmount = DEFAULT_SETTINGS.invertAmount
-					changeInvertAmount(DEFAULT_SETTINGS.invertAmount)
-					invertSettings.components[0].inputEl.value = DEFAULT_SETTINGS.invertAmount
-					await this.plugin.saveSettings();
-				})
-			})
-
-			let hueRotationSettings = new Setting(containerEl)
-			.setName('Hue rotation(0-360)')
-			.addText((text)=>{
-				text.setValue(this.plugin.settings.hueRotate)
-			.onChange(async (value)=>{
-				value = String(Math.clamp(Number(value), 0, 360))
-				this.plugin.settings.hueRotate = value;
-				hueRotationSettings.components[0].inputEl.value = value
-				await this.plugin.saveSettings();
-				changeHueRotateAmount(value)
-			})
-			})
-			hueRotationSettings.addButton((button)=>{
-				button.setButtonText("Reset")
-				button.onClick(async (evt)=>{
-					this.plugin.settings.hueRotate = DEFAULT_SETTINGS.hueRotate
-					changeHueRotateAmount(DEFAULT_SETTINGS.hueRotate)
-					hueRotationSettings.components[0].inputEl.value = DEFAULT_SETTINGS.hueRotate
+					this.plugin.settings.delay = DEFAULT_SETTINGS.delay
+					delaySettings.components[0].inputEl.value = DEFAULT_SETTINGS.delay
 					await this.plugin.saveSettings();
 				})
 			})
 	}
-}
-
-function changeInvertAmount(value:string){
-	let b = document.body
-	b.style.setProperty("--invert-amount", value)
-}
-function changeHueRotateAmount(value:string){
-	let b = document.body
-	b.style.setProperty("--hue-rotate", value+'deg')
 }

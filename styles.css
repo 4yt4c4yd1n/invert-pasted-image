@@ -2,6 +2,6 @@
 Courtesy of den from Obsidian Forums
 https://forum.obsidian.md/t/auto-adaptive-images-for-dark-light-theme/13494
 */
-div[src$="invert"]{
-    filter: hue-rotate(var(--hue-rotate)) invert(var(--invert-amount)) ;
+img[alt*="invert"]{
+    filter: hue-rotate(180deg) invert(0.88235294117) ;
 }
